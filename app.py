@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -5,6 +6,20 @@ from collections import Counter
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import io
+
+def get_wordcloud_font():
+    candidates = [
+        os.path.join(os.path.dirname(__file__), "fonts", "NanumGothic.ttf"),
+        r"C:\Windows\Fonts\malgun.ttf",
+        "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
+        "/usr/share/fonts/truetype/nanum/NanumBarunGothic.ttf",
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+    return None
+
+WORDCLOUD_FONT = get_wordcloud_font()
 
 # Set page config for premium B2B style
 st.set_page_config(
@@ -385,13 +400,15 @@ for tab, (prod_name, cfg) in zip(tabs, FILES.items()):
             
             st.write("")
             if kr_kw:
-                wc_kr = WordCloud(
-                    font_path="C:\\Windows\\Fonts\\malgun.ttf",
+                wc_kwargs = dict(
                     background_color="white",
                     width=600,
                     height=350,
-                    colormap="viridis"
-                ).generate_from_frequencies(kr_kw)
+                    colormap="viridis",
+                )
+                if WORDCLOUD_FONT:
+                    wc_kwargs["font_path"] = WORDCLOUD_FONT
+                wc_kr = WordCloud(**wc_kwargs).generate_from_frequencies(kr_kw)
                 st.image(wc_kr.to_array(), use_container_width=True)
                 
         with col_wc_jp:
@@ -404,13 +421,15 @@ for tab, (prod_name, cfg) in zip(tabs, FILES.items()):
             
             st.write("")
             if jp_kw:
-                wc_jp = WordCloud(
-                    font_path="C:\\Windows\\Fonts\\malgun.ttf",
+                wc_kwargs = dict(
                     background_color="white",
                     width=600,
                     height=350,
-                    colormap="plasma"
-                ).generate_from_frequencies(jp_kw)
+                    colormap="plasma",
+                )
+                if WORDCLOUD_FONT:
+                    wc_kwargs["font_path"] = WORDCLOUD_FONT
+                wc_jp = WordCloud(**wc_kwargs).generate_from_frequencies(jp_kw)
                 st.image(wc_jp.to_array(), use_container_width=True)
                 
         st.write("---")
